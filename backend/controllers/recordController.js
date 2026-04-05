@@ -13,11 +13,11 @@ exports.createRecord = (req, res) => {
     }
 
     const query = `
-        INSERT INTO records (amount, type, category, date, notes)
-        VALUES (?,?,?,?,?)
+        INSERT INTO records (userId, amount, type, category, date, notes)
+        VALUES (?,?,?,?,?,?)
     `;
 
-    db.run(query, [amount, type, category, date, notes], function (err){
+    db.run(query, [req.user.id, amount, type, category, date, notes], function (err){
         if (err){
             console.log("DB Error: ", err.message);
             return res.status(500).json(err);
@@ -30,9 +30,18 @@ exports.createRecord = (req, res) => {
 };
 
 exports.getRecords = (req, res)=>{
-    db.all("SELECT * FROM records", [], (err, rows)=>{
-        if (err) return res.status(500).json(err);
+    const { id, role } = req.user;
+    
+    let query = "SELECT * FROM records WHERE userId = ?";
+    let params = [id];
 
+    if (role === 'admin' || role === 'analyst') {
+        query = "SELECT * FROM records";
+        params = [];
+    }
+
+    db.all(query, params, (err, rows)=>{
+        if (err) return res.status(500).json({ message: err.message });
         res.json(rows);
     });
 };
@@ -44,10 +53,10 @@ exports.updateRecord = (req, res)=>{
     const query =`
     UPDATE records
     SET amount =?, type=?, category=?, date=?, notes=?
-    WHERE id=?
+    WHERE id=? AND userId=?
     `;
 
-    db.run(query, [amount, type, category, date, notes, id], function(err){
+    db.run(query, [amount, type, category, date, notes, id, req.user.id], function(err){
         if (err) return res.status(500).json(err);
 
         res.json({message: "Record updated"});
@@ -57,7 +66,7 @@ exports.updateRecord = (req, res)=>{
 exports.deleteRecord = (req, res)=>{
     const { id } = req.params;
 
-    db.run("DELETE FROM records WHERE id=?", [id], function(err){
+    db.run("DELETE FROM records WHERE id=? AND userId=?", [id, req.user.id], function(err){
         if (err) return res.status(500).json(err);
 
         res.json({message: "Record deleted"});

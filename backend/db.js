@@ -14,7 +14,8 @@ db.serialize(()=>{
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
-            email TEXT, 
+            email TEXT UNIQUE,
+            password TEXT, 
             role TEXT, 
             status TEXT DEFAULT 'active'
         )
@@ -22,14 +23,27 @@ db.serialize(()=>{
     db.run(`
         CREATE TABLE IF NOT EXISTS records(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            userId INTEGER,
             amount REAL,
             type TEXT,
             category TEXT,
             date TEXT,
-            notes TEXT
+            notes TEXT,
+            FOREIGN KEY (userId) REFERENCES users(id)
         )
         `
     );
+
+    // Migration: Add userId to records table if it doesn't exist
+    db.all("PRAGMA table_info(records)", (err, rows) => {
+        const columnExists = rows.some(row => row.name === 'userId');
+        if (!columnExists) {
+            db.run("ALTER TABLE records ADD COLUMN userId INTEGER", (err) => {
+                if (err) console.error("Migration error:", err.message);
+                else console.log("Migration: Added userId column to records table.");
+            });
+        }
+    });
 });
 
 module.exports = db;

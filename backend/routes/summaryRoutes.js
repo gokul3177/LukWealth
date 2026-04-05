@@ -6,11 +6,12 @@ const {
     getCategorySummary
 }= require("../controllers/summaryController");
 
+const verifyToken = require("../middleware/authMiddleware");
 const checkRole = require("../middleware/roleMiddleware");
 
-router.get("/", checkRole(["analyst", "admin"]), getSummary);
+router.get("/", verifyToken, checkRole(["analyst", "admin"]), getSummary);
 
-router.get("/category", checkRole(["analyst", "admin"]), getCategorySummary);
+router.get("/category", verifyToken, checkRole(["analyst", "admin"]), getCategorySummary);
 
 
 module.exports = router;
