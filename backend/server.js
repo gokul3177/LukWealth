@@ -1,4 +1,8 @@
 require("dotenv").config()
+if (!process.env.JWT_SECRET) {
+    console.error("FATAL ERROR: JWT_SECRET is not defined in .env file.");
+    process.exit(1);
+}
 const express = require("express");
 const app = express();
 const db = require("./db");
