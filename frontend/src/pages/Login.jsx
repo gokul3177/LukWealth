@@ -24,7 +24,7 @@ function Login() {
   return (
     <div className="flex justify-center items-center h-[80vh]">
       <div className="bg-white p-8 rounded-lg shadow-xl w-96 border border-gray-100">
-        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Login to Zorvyn</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Login to LukWealth</h2>
         
         {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4 text-sm text-center font-semibold">{error}</div>}
         

@@ -11,7 +11,7 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
         <nav className="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center">
-          <div className="font-bold text-xl tracking-wide">Zorvyn Finance</div>
+          <div className="font-bold text-xl tracking-wide">LukWealth</div>
           <div className="space-x-6 font-semibold text-sm flex items-center">
             {localStorage.getItem('token') ? (
                <Link to="/" className="hover:text-blue-200 transition">Dashboard</Link>
