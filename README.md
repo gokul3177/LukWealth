@@ -8,7 +8,8 @@ LukWealth is a secure, multi-tenant financial management and audit platform. It 
 
 ### 🔐 1. Gatekeeper Authentication
 - **Secure Registration**: New users enter a `pending` state by default.
-- **Admin Approval**: Accounts must be manually activated by an **Admin** or **Analyst** before the dashboard can be accessed.
+- **Bootstrap Mode**: On fresh installations, the system **auto-approves the very first Administrator** account created. This ensures seamless setup for new developers without manual database intervention.
+- **Admin Approval**: Subsequent accounts must be manually activated by an **Admin** or **Analyst** before the dashboard can be accessed.
 - **Identity Enforcement**: Every dashboard is personalized with a "Welcome, [Name]" header and role-specific badges.
 
 ### 📊 2. Dual-Mode Dashboards
