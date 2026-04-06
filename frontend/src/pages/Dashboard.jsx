@@ -205,7 +205,13 @@ function Dashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trends} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="month" padding={{ left: 20, right: 20 }} axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 700, fill: '#94a3b8'}} />
+                  <XAxis 
+                    dataKey="month" 
+                    padding={{ left: 20, right: 20 }} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fontSize: 10, fontWeight: 700, fill: '#94a3b8'}} 
+                  />
                   <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 700, fill: '#94a3b8'}} />
                   <Tooltip contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} />
                   <Legend iconType="line" iconSize={10} verticalAlign="top" align="right" wrapperStyle={{paddingBottom: '20px'}} />

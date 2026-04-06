@@ -2,7 +2,7 @@ const sqlite3 = require("sqlite3").verbose()
 
 const db = new sqlite3.Database("./database.db", (err)=>{
     if (err){
-        console.error("DB error::", err);
+        console.error("DB Error: ", err.message);
     }
     else{
         console.log("SQLite connected");
@@ -41,14 +41,8 @@ db.serialize(()=>{
         if (!columnExists) {
             db.run("ALTER TABLE users ADD COLUMN deactivatedByRole TEXT", (err) => {
                 if (err) console.error("Migration error:", err.message);
-                else console.log("Migration: Added deactivatedByRole column to users table.");
             });
         }
-        // ROLE MIGRATION: Convert 'viewer' to 'user' as per latest requirement
-        db.run("UPDATE users SET role = 'user' WHERE role = 'viewer'", (err) => {
-            if (err) console.error("Role Migration Err:", err.message);
-            else console.log("Role Migration: All 'viewer' roles successfully converted to 'user'.");
-        });
     });
 });
 

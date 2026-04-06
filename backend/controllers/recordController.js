@@ -25,7 +25,7 @@ exports.createRecord = (req, res) => {
 
     db.run(query, [targetUserId, amount, type, category, date, notes], function (err){
         if (err){
-            console.log("DB Error: ", err.message);
+            console.error("DB Error: ", err.message);
             return res.status(500).json(err);
         }
         res.json({
