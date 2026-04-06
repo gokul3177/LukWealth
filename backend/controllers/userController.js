@@ -37,17 +37,36 @@ exports.registerUser = async (req, res) => {
         return res.status(400).json({message: "All fields required" });
     }
     
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    const query = `
-        INSERT INTO users (name, email, password, role, status)
-        VALUES (?, ?, ?, ?, 'pending')
-    `;
+    // BOOTSTRAP LOGIC: Check if any Admin exists
+    db.get("SELECT COUNT(*) as count FROM users WHERE role = 'admin'", [], async (err, row) => {
+        if (err) return res.status(500).json({message: "Internal Server Error"});
 
+        const adminExists = row.count > 0;
+        let status = 'pending';
+        let message = "Registration successful! Your account is now awaiting Admin approval.";
 
-    db.run(query, [name, email, hashedPassword, role], function(err){
-        if (err) return res.status(500).json({message: "Registration failed. Email might already exist."});
-        res.json({message: "Registration successful! Your account is now awaiting Admin approval."});
+        if (!adminExists) {
+            // Requirement: First user MUST be an Admin
+            if (role !== 'admin') {
+                return res.status(400).json({
+                    message: "System Setup Required: The first account created must be an Administrator. Please select the Admin role to proceed."
+                });
+            }
+            // Auto-approve the first admin
+            status = 'active';
+            message = "Administrator Setup Successful! Your account is active. You can now log in and approve other users.";
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const query = `
+            INSERT INTO users (name, email, password, role, status)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+
+        db.run(query, [name, email, hashedPassword, role, status], function(err){
+            if (err) return res.status(500).json({message: "Registration failed. Email might already exist."});
+            res.json({ message });
+        });
     });
 };
 

@@ -11,28 +11,38 @@ function Register() {
   });
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     
     try {
-      // Hit your userController.js registerUser function
       const res = await API.post('/users/register', formData);
-      
       alert(res.data.message || "Registration successful! Awaiting Admin approval.");
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex justify-center items-center h-[80vh]">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-[400px] border border-gray-100">
+      <div className="bg-white p-8 rounded-lg shadow-xl w-[400px] border border-gray-100 relative overflow-hidden">
+        {/* Bootstrap Tip */}
+        <div className="bg-blue-50 -mx-8 -mt-8 p-4 mb-6 border-b border-blue-100 flex items-center gap-3">
+          <div className="bg-blue-600 text-white p-1.5 rounded-lg shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <p className="text-[11px] font-bold text-blue-700 leading-tight">
+            FIRST TIME SETUP? <span className="font-normal block text-blue-500">The first account created must be an Administrator.</span>
+          </p>
+        </div>
+
         <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Create an Account</h2>
         
         {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4 text-sm text-center font-semibold">{error}</div>}
