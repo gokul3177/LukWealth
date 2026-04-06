@@ -15,8 +15,8 @@ const {
 
 const checkRole = require("../middleware/roleMiddleware");
 const verifyToken = require("../middleware/authMiddleware");
-router.get("/", verifyToken, checkRole(["viewer", "analyst", "admin"]), getRecords);
-router.post("/", verifyToken, checkRole(["viewer", "analyst", "admin"]), createRecord);
-router.put("/:id", verifyToken, checkRole(["viewer", "analyst", "admin"]), updateRecord);
-router.delete("/:id", verifyToken, checkRole(["viewer", "analyst", "admin"]), deleteRecord);
+router.get("/", verifyToken, checkRole(["analyst", "admin", "user"]), getRecords);
+router.post("/", verifyToken, checkRole(["analyst", "admin", "user"]), createRecord);
+router.put("/:id", verifyToken, checkRole(["analyst", "admin", "user"]), updateRecord);
+router.delete("/:id", verifyToken, checkRole(["analyst", "admin", "user"]), deleteRecord);
 module.exports = router;

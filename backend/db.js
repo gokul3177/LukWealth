@@ -17,7 +17,8 @@ db.serialize(()=>{
             email TEXT UNIQUE,
             password TEXT, 
             role TEXT, 
-            status TEXT DEFAULT 'active'
+            status TEXT DEFAULT 'active',
+            deactivatedByRole TEXT
         )
         `);
     db.run(`
@@ -34,15 +35,20 @@ db.serialize(()=>{
         `
     );
 
-    // Migration: Add userId to records table if it doesn't exist
-    db.all("PRAGMA table_info(records)", (err, rows) => {
-        const columnExists = rows.some(row => row.name === 'userId');
+    // Migration: Add deactivatedByRole to users table if it doesn't exist
+    db.all("PRAGMA table_info(users)", (err, rows) => {
+        const columnExists = rows.some(row => row.name === 'deactivatedByRole');
         if (!columnExists) {
-            db.run("ALTER TABLE records ADD COLUMN userId INTEGER", (err) => {
+            db.run("ALTER TABLE users ADD COLUMN deactivatedByRole TEXT", (err) => {
                 if (err) console.error("Migration error:", err.message);
-                else console.log("Migration: Added userId column to records table.");
+                else console.log("Migration: Added deactivatedByRole column to users table.");
             });
         }
+        // ROLE MIGRATION: Convert 'viewer' to 'user' as per latest requirement
+        db.run("UPDATE users SET role = 'user' WHERE role = 'viewer'", (err) => {
+            if (err) console.error("Role Migration Err:", err.message);
+            else console.log("Role Migration: All 'viewer' roles successfully converted to 'user'.");
+        });
     });
 });
 

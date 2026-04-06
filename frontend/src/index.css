@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* We'll add some basic background styles for our finance app here later if needed */
+body {
+  background-color: #f3f4f6; /* A clean, light gray background */
+}
