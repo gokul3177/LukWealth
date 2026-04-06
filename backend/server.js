@@ -1,4 +1,4 @@
-require("dotenv").config()
+require("dotenv").config({ path: "../.env" })
 if (!process.env.JWT_SECRET) {
     console.error("FATAL ERROR: JWT_SECRET is not defined in .env file.");
     process.exit(1);
