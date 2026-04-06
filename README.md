@@ -1,143 +1,81 @@
-# 💰 Finance Backend System
+# 🏦 LukWealth Finance
 
-## 📌 Overview
-
-This project is a backend system for a finance dashboard that manages financial records, user roles, and summary analytics.
-
-It demonstrates API design, role-based access control, and data aggregation — key backend concepts used in fintech systems.
+LukWealth is a secure, multi-tenant financial management and audit platform. It features a robust **Role-Based Access Control (RBAC)** system, a personalized dashboard experience, and high-level analytical tools for enterprise-grade financial monitoring.
 
 ---
 
-## 🚀 Tech Stack
+## 🚀 Core Features
 
-* Node.js
-* Express.js
-* SQLite (for simplicity and reliability)
+### 🔐 1. Gatekeeper Authentication
+- **Secure Registration**: New users enter a `pending` state by default.
+- **Admin Approval**: Accounts must be manually activated by an **Admin** or **Analyst** before the dashboard can be accessed.
+- **Identity Enforcement**: Every dashboard is personalized with a "Welcome, [Name]" header and role-specific badges.
+
+### 📊 2. Dual-Mode Dashboards
+- **Personal Wallet (Default)**: Everyone starts by seeing their own personal financial activity. This ensures data consistency during audits.
+- **Global Monitor (Toggle)**: Admins and Analysts can toggle into "System Global" mode to see aggregated financial insights for the entire organization (Total Balance, Income, and Expenses).
+
+### 🛡️ 3. Advanced RBAC & Registry
+- **User Registry**: A centralized management hub where high-level roles can manage the user base.
+- **Audit Mode**: Admins can click on any user in the registry to "Audit" their specific financial profile, viewing their individual transaction trail without high-level totals.
+- **Account Management**: 
+    - **Admins**: Can activate/deactivate any user and delete accounts.
+    - **Analysts**: Can manage standard Users but cannot override Admin-level deactivations.
+
+### 💎 4. Data Integrity & "Self-Management"
+- **Ownership Logic**: You can only `Update` or `Delete` records that you personally created. 
+- **Smart UI**: The "Trash" icon only appears on records you own, preventing unauthorized modification attempts and 403 errors.
+- **Privacy Guard**: Analysts are strictly blocked from auditing other Analysts or Admins.
 
 ---
 
-## 📁 Folder Explanation
+## 👤 Role & Permission Matrix
 
-* controllers → business logic
-* routes → API endpoints
-* middleware → role-based access
+| Feature | Admin | Analyst | User |
+| :--- | :---: | :---: | :---: |
+| **Personal Dashboard** | ✅ | ✅ | ✅ |
+| **Add/Delete Own Records** | ✅ | ✅ | ✅ |
+| **View Global Stats** | ✅ | ✅ | ❌ |
+| **User Registry Access** | ✅ | ✅ | ❌ |
+| **Audit Other Users** | ✅ | ✅ (Users only) | ❌ |
+| **Activate/Deactivate Users** | ✅ | ✅ (Users only) | ❌ |
+| **Delete Users** | ✅ | ❌ | ❌ |
 
 ---
 
-## 🧠 Design Decisions
+## 🛠️ Tech Stack
 
-* SQLite used for simplicity and zero setup
-* Middleware used for role-based access control
-* Aggregation queries used for dashboard insights
+- **Frontend**: React.js, Tailwind CSS, Recharts (Visual Analytics), Lucide Icons.
+- **Backend**: Node.js, Express.js.
+- **Security**: JWT (JSON Web Tokens) with personalized metadata.
+- **Database**: SQLite (Production-ready schema with hierarchy-aware triggers).
 
 ---
 
 ## ⚙️ Setup Instructions
 
-1. Clone the repository
+### 1. Clone & Install
+```bash
+git clone https://github.com/gokul3177/LukWealth.git
+npm install
+```
 
-2. Install dependencies:
-   npm install
+### 2. Backend Setup
+```bash
+cd backend
+npm install
+# Create a .env file with JWT_SECRET=your_secret_key
+node server.js
+```
 
-3. Start the server:
-   node server.js
-
-Server runs at:
-http://localhost:4000
-
----
-
-## 👤 Roles & Permissions
-
-| Role    | Access                               |
-| ------- | ------------------------------------ |
-| Viewer  | Read-only access to records          |
-| Analyst | View records + summary analytics     |
-| Admin   | Full access (create, update, delete) |
-
-Pass role in request header:
-role: admin / analyst / viewer
-
----
-
-## 📡 API Endpoints
-
-### Users
-
-* POST /users → Create user
-* GET /users → Get all users
-
-### Records
-
-* POST /records → Create record (Admin only)
-* GET /records → Get records (All roles)
-* PUT /records/:id → Update record (Admin only)
-* DELETE /records/:id → Delete record (Admin only)
-
-### Summary
-
-* GET /summary → Total income, expenses, balance (Analyst/Admin)
-* GET /summary/category → Category-wise totals
-
----
-
-## 🧪 Example Request
-
-### Create Record
-
-POST /records
-
-Headers:
-role: admin
-
-Body:
-{
-"amount": 5000,
-"type": "income",
-"category": "salary",
-"date": "2026-04-04",
-"notes": "April salary"
-}
-
----
-
-## 📊 Example Response
-
-{
-"total_income": 5000,
-"total_expense": 2000,
-"net_balance": 3000
-}
-
----
-
-## ⚡ Quick Testing Guide
-
-1. Create a user (POST /users)
-2. Add records using role: admin
-3. Fetch records using role: viewer
-4. Access summary using role: analyst
-
----
-
-## 📊 Features Implemented
-
-* Role-based access control using middleware
-* Financial records CRUD operations
-* Aggregated summary APIs
-* Input validation and error handling
-* Lightweight SQLite database for easy setup
-
----
-
-## 💡 Notes
-
-SQLite is used to ensure the project runs without external dependencies.
-
-In production systems, PostgreSQL or MySQL would be preferred for scalability and consistency.
+### 3. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
 ---
 
 ## 🏁 Conclusion
-
-This project demonstrates clean backend architecture, role-based authorization, and financial data processing aligned with real-world fintech backend systems.
+LukWealth demonstrates a complete "Enterprise Financial" workflow—from secure onboarding and role-aware navigation to high-level auditing and data integrity. It is designed to be a reliable "Home Base" for both individual users and financial overseers.
