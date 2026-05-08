@@ -44,27 +44,27 @@ function AddRecord() {
         <ArrowLeft size={18} className="mr-1" /> Back to Dashboard
       </button>
 
-      <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-100">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New Record</h2>
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Add New Record</h2>
         
         {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4 text-sm font-semibold">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">Amount ($)</label>
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Amount ($)</label>
               <input 
                 type="number" step="0.01" required min="0.01"
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 outline-none"
+                className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none"
                 value={formData.amount}
                 onChange={(e) => setFormData({...formData, amount: e.target.value})}
               />
             </div>
             
             <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">Type</label>
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Type</label>
               <select 
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 outline-none"
+                className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none"
                 value={formData.type}
                 onChange={(e) => setFormData({...formData, type: e.target.value})}
               >
@@ -76,20 +76,20 @@ function AddRecord() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">Category</label>
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Category</label>
               <input 
                 type="text" required placeholder="e.g. Groceries, Salary"
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 outline-none"
+                className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 outline-none"
                 value={formData.category}
                 onChange={(e) => setFormData({...formData, category: e.target.value})}
               />
             </div>
 
             <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">Date</label>
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Date</label>
               <input 
                 type="date" required
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 outline-none"
+                className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none"
                 value={formData.date}
                 onChange={(e) => setFormData({...formData, date: e.target.value})}
               />
@@ -97,10 +97,10 @@ function AddRecord() {
           </div>
 
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Notes (Optional)</label>
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Notes (Optional)</label>
             <textarea 
               rows="3"
-              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 outline-none resize-none"
+              className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 outline-none resize-none"
               value={formData.notes}
               onChange={(e) => setFormData({...formData, notes: e.target.value})}
             ></textarea>

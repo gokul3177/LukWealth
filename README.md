@@ -28,6 +28,7 @@ LukWealth is an enterprise-grade financial management platform that provides:
 - **Dual-mode dashboards** (Personal Wallet + Global Monitor)
 - **Comprehensive audit trails** with read-only inspection mode
 - **Smart UI controls** that prevent unauthorized actions
+- **Integrated Dark Mode** for enhanced visual comfort
 
 ---
 
@@ -75,6 +76,11 @@ LukWealth is an enterprise-grade financial management platform that provides:
 - Analysts cannot audit other Analysts or Admins
 - Strict hierarchical access enforcement
 - Audit mode is read-only to preserve data integrity
+
+### 🌓 Integrated Dark Mode
+- **System-wide dark theme** toggle for reduced eye strain
+- **Persistent settings** saved via localStorage
+- **Dynamic charts** and UI components optimized for both light and dark environments
 
 ---
 
@@ -151,6 +157,9 @@ LukWealth is an enterprise-grade financial management platform that provides:
 ```
 
    The server will run on `http://localhost:5000`
+
+   > [!IMPORTANT]
+   > Currently, the server is configured to clear the database every time it is restarted. Ensure you save any necessary data before restarting the backend.
 
 ### Frontend Setup
 

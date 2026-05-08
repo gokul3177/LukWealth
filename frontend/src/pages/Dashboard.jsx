@@ -109,11 +109,11 @@ function Dashboard() {
 
       <div className="flex justify-between items-center mb-8 pt-4">
         <div>
-           <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">
-             Welcome, <span className="text-blue-600">{currentUserName}</span>
-             <span className="ml-2 bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[9px]">{role?.toUpperCase()}</span>
+           <p className="text-gray-400 dark:text-gray-500 text-xs font-black uppercase tracking-widest mb-1">
+             Welcome, <span className="text-blue-600 dark:text-blue-400">{currentUserName}</span>
+             <span className="ml-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded text-[9px]">{role?.toUpperCase()}</span>
            </p>
-           <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+           <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
              {viewUserId ? 'Audit Report' : (isGlobal ? 'System Monitor' : 'My Wallet')}
            </h1>
            <p className="text-gray-500 text-xs mt-1">
@@ -127,7 +127,7 @@ function Dashboard() {
               <button 
                 onClick={() => setIsGlobal(!isGlobal)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center shadow-sm border ${
-                  isGlobal ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                  isGlobal ? 'bg-indigo-600 text-white border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
                 {isGlobal ? 'Switch to Personal' : 'View Global Stats'}
@@ -135,8 +135,8 @@ function Dashboard() {
           )}
 
           {(role === 'admin' || role === 'analyst') && (
-              <button onClick={()=> navigate('/manage-users')} className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl shadow-sm hover:shadow-md flex items-center font-bold transition">
-                <Users size={18} className="mr-2 text-indigo-500" /> Registry
+              <button onClick={()=> navigate('/manage-users')} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-xl shadow-sm hover:shadow-md flex items-center font-bold transition hover:bg-gray-50 dark:hover:bg-gray-700">
+                <Users size={18} className="mr-2 text-indigo-500 dark:text-indigo-400" /> Registry
               </button>
           )}
 
@@ -154,28 +154,28 @@ function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
             <div>
-                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Total Balance</p>
-                <h3 className={`text-2xl font-black ${balance >= 0 ? 'text-blue-600' : 'text-red-500'}`}>${balance.toLocaleString(undefined, {minimumFractionDigits: 2})}</h3>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest mb-1">Total Balance</p>
+                <h3 className={`text-2xl font-black ${balance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-500 dark:text-red-400'}`}>${balance.toLocaleString(undefined, {minimumFractionDigits: 2})}</h3>
             </div>
-            <div className="bg-blue-50 p-4 rounded-2xl text-blue-600"><DollarSign size={24}/></div>
+            <div className="bg-blue-50 dark:bg-gray-700 p-4 rounded-2xl text-blue-600 dark:text-blue-400"><DollarSign size={24}/></div>
         </div>
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 group transition hover:border-emerald-200">
-            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Cumulative Income</p>
-            <h3 className="text-2xl font-black text-emerald-500">+${totalIncome.toLocaleString(undefined, {minimumFractionDigits: 2})}</h3>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 group transition hover:border-emerald-200 dark:hover:border-emerald-500">
+            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest mb-1">Cumulative Income</p>
+            <h3 className="text-2xl font-black text-emerald-500 dark:text-emerald-400">+${totalIncome.toLocaleString(undefined, {minimumFractionDigits: 2})}</h3>
         </div>
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 group transition hover:border-red-200">
-            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Cumulative Expense</p>
-            <h3 className="text-2xl font-black text-red-500">-${totalExpense.toLocaleString(undefined, {minimumFractionDigits: 2})}</h3>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 group transition hover:border-red-200 dark:hover:border-red-500">
+            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest mb-1">Cumulative Expense</p>
+            <h3 className="text-2xl font-black text-red-500 dark:text-red-400">-${totalExpense.toLocaleString(undefined, {minimumFractionDigits: 2})}</h3>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Pie Chart: Category Breakdown */}
         {categoryData.length > 0 && (
-          <div className="bg-white p-7 rounded-2xl shadow-sm border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+          <div className="bg-white dark:bg-gray-800 p-7 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                 <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> Expense Breakdown
             </h2>
             <div className="h-72 w-full">
@@ -197,8 +197,8 @@ function Dashboard() {
 
         {/* Universal Line Chart: Ensuring perfect consistency across all roles */}
         {trends.length > 0 && (
-          <div className="bg-white p-7 rounded-2xl shadow-sm border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+          <div className="bg-white dark:bg-gray-800 p-7 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span> Financial Trends
             </h2>
             <div className="h-72 w-full text-xs">
@@ -224,15 +224,15 @@ function Dashboard() {
         )}
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-            <h3 className="font-bold text-gray-800 tracking-tight">Recent Activity</h3>
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{records.length} Records</span>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+            <h3 className="font-bold text-gray-800 dark:text-white tracking-tight">Recent Activity</h3>
+            <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{records.length} Records</span>
         </div>
         <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
             <thead>
-                <tr className="text-gray-400 text-[10px] tracking-widest uppercase">
+                <tr className="text-gray-400 dark:text-gray-500 text-[10px] tracking-widest uppercase">
                     <th className="p-5 font-bold">Date</th>
                     <th className="p-5 font-bold text-center">Category</th>
                     <th className="p-5 font-bold">Details</th>
@@ -245,13 +245,13 @@ function Dashboard() {
                 <tr><td colSpan="5" className="text-center p-12 text-gray-400 font-medium">No financial trails found.</td></tr>
                 ) : (
                 records.map((record) => (
-                    <tr key={record.id} className="border-b border-gray-50 last:border-0 transition hover:bg-gray-50/50">
-                        <td className="p-5 text-gray-800 font-semibold text-sm">{new Date(record.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}</td>
+                    <tr key={record.id} className="border-b border-gray-50 dark:border-gray-700/50 last:border-0 transition hover:bg-gray-50/50 dark:hover:bg-gray-700/30">
+                        <td className="p-5 text-gray-800 dark:text-gray-200 font-semibold text-sm">{new Date(record.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}</td>
                         <td className="p-5 text-center">
-                            <span className="bg-gray-100 text-gray-500 text-[9px] px-2 py-1 rounded font-black uppercase tracking-tighter">{record.category}</span>
+                            <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[9px] px-2 py-1 rounded font-black uppercase tracking-tighter">{record.category}</span>
                         </td>
-                        <td className="p-5 text-gray-500 text-sm max-w-xs truncate italic">"{record.notes || 'No notes provided'}"</td>
-                        <td className={`p-5 text-right font-black text-sm ${record.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                        <td className="p-5 text-gray-500 dark:text-gray-400 text-sm max-w-xs truncate italic">"{record.notes || 'No notes provided'}"</td>
+                        <td className={`p-5 text-right font-black text-sm ${record.type === 'income' ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
                             {record.type === 'income' ? '+' : '-'}${record.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}
                         </td>
                         

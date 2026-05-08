@@ -32,54 +32,54 @@ function Register() {
 
   return (
     <div className="flex justify-center items-center h-[80vh]">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-[400px] border border-gray-100 relative overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-[400px] border border-gray-100 dark:border-gray-700 relative overflow-hidden">
         {/* Bootstrap Tip */}
-        <div className="bg-blue-50 -mx-8 -mt-8 p-4 mb-6 border-b border-blue-100 flex items-center gap-3">
+        <div className="bg-blue-50 dark:bg-blue-900/20 -mx-8 -mt-8 p-4 mb-6 border-b border-blue-100 dark:border-blue-900/30 flex items-center gap-3">
           <div className="bg-blue-600 text-white p-1.5 rounded-lg shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </div>
-          <p className="text-[11px] font-bold text-blue-700 leading-tight">
-            FIRST TIME SETUP? <span className="font-normal block text-blue-500">The first account created must be an Administrator.</span>
+          <p className="text-[11px] font-bold text-blue-700 dark:text-blue-400 leading-tight">
+            FIRST TIME SETUP? <span className="font-normal block text-blue-500 dark:text-blue-300">The first account created must be an Administrator.</span>
           </p>
         </div>
 
-        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Create an Account</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">Create an Account</h2>
         
         {error && <div className="bg-red-100 text-red-600 p-3 rounded mb-4 text-sm text-center font-semibold">{error}</div>}
         {successMsg && <div className="bg-green-100 text-green-600 p-3 rounded mb-4 text-sm text-center font-semibold">{successMsg}</div>}
         
         <form onSubmit={handleRegister} className="flex flex-col gap-4">
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Full Name</label>
             <input 
               type="text" required
-              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 outline-none"
+              className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none"
               value={formData.name} 
               onChange={(e) => setFormData({...formData, name: e.target.value})} 
             />
           </div>
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Email Address</label>
             <input 
               type="email" required
-              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 outline-none"
+              className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none"
               value={formData.email} 
               onChange={(e) => setFormData({...formData, email: e.target.value})} 
             />
           </div>
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Password</label>
             <input 
               type="password" required minLength="6"
-              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 outline-none"
+              className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none"
               value={formData.password} 
               onChange={(e) => setFormData({...formData, password: e.target.value})} 
             />
           </div>
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Account Role</label>
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Account Role</label>
             <select 
-              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 outline-none"
+              className="w-full px-3 py-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none"
               value={formData.role}
               onChange={(e) => setFormData({...formData, role: e.target.value})}
             >
@@ -97,8 +97,8 @@ function Register() {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Already have an account? <Link to="/login" className="text-blue-600 font-bold hover:underline">Log in</Link>
+        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+          Already have an account? <Link to="/login" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">Log in</Link>
         </p>
       </div>
     </div>

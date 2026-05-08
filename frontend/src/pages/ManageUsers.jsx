@@ -93,11 +93,11 @@ function ManageUsers() {
                 <ArrowLeft size={18} className="mr-1" /> Back to Dashboard
             </button>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800">User Management</h2>
-                        <p className="text-sm text-gray-500 mt-1">Manage registration approvals and account access levels.</p>
+                        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">User Management</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage registration approvals and account access levels.</p>
                     </div>
                     <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase">
                         {users.length} Users
@@ -107,7 +107,7 @@ function ManageUsers() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-white border-b border-gray-200 text-gray-400 text-[10px] tracking-widest uppercase">
+                            <tr className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 text-[10px] tracking-widest uppercase">
                                 <th className="p-5 font-bold">Identity</th>
                                 <th className="p-5 font-bold text-center">Role</th>
                                 <th className="p-5 font-bold text-center">Status</th>
@@ -116,25 +116,25 @@ function ManageUsers() {
                         </thead>
                         <tbody>
                             {users.map((u) => (
-                                <tr key={u.id} className={`border-b border-gray-50 transition ${u.id === currentUserId ? 'bg-blue-50/30' : 'hover:bg-gray-50'}`}>
+                                <tr key={u.id} className={`border-b border-gray-50 dark:border-gray-700/50 transition ${u.id === currentUserId ? 'bg-blue-50/30 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'}`}>
                                     <td className="p-5">
                                         <div className="flex items-center">
-                                            <div className={`p-2 rounded-lg mr-3 ${u.id === currentUserId ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                            <div className={`p-2 rounded-lg mr-3 ${u.id === currentUserId ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'}`}>
                                                 <User size={18} />
                                             </div>
                                             <div>
-                                                <div className="font-bold text-gray-800 flex items-center">
-                                                    {u.name} {u.id === currentUserId && <span className="ml-2 text-[9px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded uppercase">You</span>}
+                                                <div className="font-bold text-gray-800 dark:text-gray-200 flex items-center">
+                                                    {u.name} {u.id === currentUserId && <span className="ml-2 text-[9px] bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded uppercase">You</span>}
                                                 </div>
-                                                <div className="text-xs text-gray-500">{u.email}</div>
+                                                <div className="text-xs text-gray-500 dark:text-gray-400">{u.email}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="p-5 text-center">
                                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tight ${
-                                            u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 
-                                            u.role === 'analyst' ? 'bg-orange-100 text-orange-700' : 
-                                            'bg-emerald-100 text-emerald-700'
+                                            u.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : 
+                                            u.role === 'analyst' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : 
+                                            'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
                                         }`}>
                                             {u.role === 'user' ? 'USER' : u.role.toUpperCase()}
                                         </span>
