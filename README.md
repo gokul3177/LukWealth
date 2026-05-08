@@ -312,5 +312,3 @@ A professional-grade solution for multi-tenant financial management with compreh
 ---
 ** Working video will be uploaded soon **
 
-
-**Built with ❤️ by the LukWealth Team**
