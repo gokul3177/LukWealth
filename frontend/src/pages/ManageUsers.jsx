@@ -1,203 +1,180 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../utils/api';
-import { ArrowLeft, Trash2, User, UserCheck, UserX, Activity, CheckCircle, Clock } from 'lucide-react';
+import { ArrowLeft, Trash2, User, UserCheck, UserX, Activity, CheckCircle, Clock, Shield, BarChart2 } from 'lucide-react';
+
+const RoleBadge = ({ role }) => {
+  const map = {
+    admin:   'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 ring-1 ring-purple-200 dark:ring-purple-700/40',
+    analyst: 'bg-amber-100  dark:bg-amber-900/30  text-amber-700  dark:text-amber-400  ring-1 ring-amber-200  dark:ring-amber-700/40',
+    user:    'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-700/40',
+  };
+  const icons = { admin: Shield, analyst: BarChart2, user: User };
+  const Icon = icons[role] || User;
+  return (
+    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ${map[role] || map.user}`}>
+      <Icon size={10} strokeWidth={2.5} />{role}
+    </span>
+  );
+};
+
+const StatusBadge = ({ status }) => {
+  if (status === 'active')  return <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-xs font-bold"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>Active</span>;
+  if (status === 'pending') return <span className="inline-flex items-center gap-1.5 text-amber-500 text-xs font-bold"><Clock size={12}/>Pending</span>;
+  return <span className="inline-flex items-center gap-1.5 text-gray-400 text-xs font-bold"><span className="w-1.5 h-1.5 rounded-full bg-gray-400"/>Inactive</span>;
+};
 
 function ManageUsers() {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-    // Helper to figure out who is current logged in
-    const getAuth = () => {
-        const token = localStorage.getItem('token');
-        if(!token) return { id: null, role: null };
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            return { id: payload.id, role: payload.role };
-        } catch(err) { return { id: null, role: null }; }
-    };
-    const { id: currentUserId, role: currentUserRole } = getAuth();
+  const getAuth = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return { id: null, role: null };
+    try { const p = JSON.parse(atob(token.split('.')[1])); return { id: p.id, role: p.role }; }
+    catch { return { id: null, role: null }; }
+  };
+  const { id: currentUserId, role: currentUserRole } = getAuth();
 
-    useEffect(() => {
-        if (currentUserRole !== 'admin' && currentUserRole !== 'analyst') {
-            navigate('/');
-            return;
-        }
-        fetchUsers();
-    }, []);
+  useEffect(() => {
+    if (currentUserRole !== 'admin' && currentUserRole !== 'analyst') { navigate('/'); return; }
+    fetchUsers();
+  }, []);
 
-    const fetchUsers = async () => {
-        try {
-            const res = await API.get('/users');
-            setUsers(res.data);
-        } catch (err) {
-            console.error("Failed to fetch users");
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchUsers = async () => {
+    try { const res = await API.get('/users'); setUsers(res.data); }
+    catch { console.error('Failed to fetch users'); }
+    finally { setLoading(false); }
+  };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this user?")) return;
-        try {
-            await API.delete(`/users/${id}`);
-            setUsers(users.filter(u => u.id !== id));
-        } catch (err) {
-            alert(err.response?.data?.message || "Failed to delete user");
-        }
-    };
+  const handleDelete = async (id) => {
+    if (!window.confirm('Permanently delete this user?')) return;
+    try { await API.delete(`/users/${id}`); setUsers(users.filter(u => u.id !== id)); }
+    catch (err) { alert(err.response?.data?.message || 'Failed to delete user'); }
+  };
 
-    const toggleStatus = async (user) => {
-        const newStatus = user.status === 'inactive' || user.status === 'pending' ? 'active' : 'inactive';
-        const actionLabel = newStatus === 'active' ? "approve/activate" : "deactivate";
-        
-        if (!window.confirm(`Are you sure you want to ${actionLabel} this user?`)) return;
+  const toggleStatus = async (user) => {
+    const newStatus = (user.status === 'inactive' || user.status === 'pending') ? 'active' : 'inactive';
+    const label = newStatus === 'active' ? 'approve/activate' : 'deactivate';
+    if (!window.confirm(`Are you sure you want to ${label} this user?`)) return;
+    try {
+      await API.put(`/users/${user.id}/status`, { status: newStatus });
+      setUsers(users.map(u => u.id === user.id ? { ...u, status: newStatus } : u));
+    } catch (err) { alert(err.response?.data?.message || 'Failed to update status'); }
+  };
 
-        try {
-            await API.put(`/users/${user.id}/status`, { status: newStatus });
-            setUsers(users.map(u => u.id === user.id ? {...u, status: newStatus} : u));
-        } catch (err) {
-            alert(err.response?.data?.message || "Failed to update status");
-        }
-    }
+  const canManage = (target) => {
+    if (target.id === currentUserId) return false;
+    if (currentUserRole === 'analyst' && target.role !== 'user') return false;
+    if (currentUserRole === 'analyst' && target.deactivatedByRole === 'admin') return false;
+    return true;
+  };
+  const canAudit = (target) => {
+    if (target.role === 'analyst' && currentUserRole !== 'admin') return false;
+    return true;
+  };
 
-    if (loading) return <div className="text-center mt-20">Loading registry...</div>;
+  if (loading) return (
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="h-8 w-40 rounded-lg shimmer mb-8" />
+      <div className="h-96 rounded-2xl shimmer" />
+    </div>
+  );
 
-    // Safety & Hierarchy Logic
-    const canManage = (target) => {
-        // 1. Cannot deactivate self
-        if (target.id === currentUserId) return false;
-        
-        // 2. Analyst can only manage 'user' role
-        if (currentUserRole === 'analyst' && target.role !== 'user') return false;
+  const statusCounts = {
+    active:  users.filter(u => u.status === 'active').length,
+    pending: users.filter(u => u.status === 'pending').length,
+    inactive: users.filter(u => u.status === 'inactive').length,
+  };
 
-        // 3. Hierarchy Lock: Analyst cannot activate Admin-deactivated user
-        if (currentUserRole === 'analyst' && target.deactivatedByRole === 'admin') return false;
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-8 animate-fade-up">
+      <button onClick={() => navigate('/')} className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-semibold mb-6 transition">
+        <ArrowLeft size={16} /> Back to Dashboard
+      </button>
 
-        return true;
-    };
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {[
+          { label: 'Active', count: statusCounts.active, color: 'from-emerald-400 to-teal-500' },
+          { label: 'Pending', count: statusCounts.pending, color: 'from-amber-400 to-orange-500' },
+          { label: 'Inactive', count: statusCounts.inactive, color: 'from-gray-400 to-gray-500' },
+        ].map(({ label, count, color }) => (
+          <div key={label} className={`bg-gradient-to-br ${color} rounded-2xl p-5 text-white shadow-lg`}>
+            <p className="text-2xl font-black">{count}</p>
+            <p className="text-white/70 text-xs font-bold uppercase tracking-widest mt-1">{label} Users</p>
+          </div>
+        ))}
+      </div>
 
-    const canAudit = (target) => {
-        // Only Admin can audit Analysts
-        if (target.role === 'analyst' && currentUserRole !== 'admin') return false;
-        return true;
-    }
-
-    return (
-        <div className="max-w-5xl mx-auto px-4">
-            <button 
-                onClick={() => navigate('/')} 
-                className="text-blue-600 hover:text-blue-800 flex items-center mb-6 font-semibold transition"
-            >
-                <ArrowLeft size={18} className="mr-1" /> Back to Dashboard
-            </button>
-
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center">
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">User Management</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage registration approvals and account access levels.</p>
-                    </div>
-                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase">
-                        {users.length} Users
-                    </span>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 text-[10px] tracking-widest uppercase">
-                                <th className="p-5 font-bold">Identity</th>
-                                <th className="p-5 font-bold text-center">Role</th>
-                                <th className="p-5 font-bold text-center">Status</th>
-                                <th className="p-5 font-bold text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.map((u) => (
-                                <tr key={u.id} className={`border-b border-gray-50 dark:border-gray-700/50 transition ${u.id === currentUserId ? 'bg-blue-50/30 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'}`}>
-                                    <td className="p-5">
-                                        <div className="flex items-center">
-                                            <div className={`p-2 rounded-lg mr-3 ${u.id === currentUserId ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'}`}>
-                                                <User size={18} />
-                                            </div>
-                                            <div>
-                                                <div className="font-bold text-gray-800 dark:text-gray-200 flex items-center">
-                                                    {u.name} {u.id === currentUserId && <span className="ml-2 text-[9px] bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded uppercase">You</span>}
-                                                </div>
-                                                <div className="text-xs text-gray-500 dark:text-gray-400">{u.email}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="p-5 text-center">
-                                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-tight ${
-                                            u.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : 
-                                            u.role === 'analyst' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : 
-                                            'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                                        }`}>
-                                            {u.role === 'user' ? 'USER' : u.role.toUpperCase()}
-                                        </span>
-                                    </td>
-                                    <td className="p-5 text-center">
-                                        {u.status === 'active' ? (
-                                            <span className="inline-flex items-center text-emerald-600 text-[11px] font-bold">
-                                                <UserCheck size={14} className="mr-1" /> Active
-                                            </span>
-                                        ) : u.status === 'pending' ? (
-                                            <span className="inline-flex items-center text-amber-500 text-[11px] font-bold italic animate-pulse">
-                                                <Clock size={14} className="mr-1" /> Pending Approval
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center text-red-400 text-[11px] font-bold">
-                                                <UserX size={14} className="mr-1" /> Inactive
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="p-5">
-                                        <div className="flex items-center justify-center space-x-4">
-                                            {/* Drill-down Audit Icon */}
-                                            {canAudit(u) && (
-                                                <button 
-                                                    onClick={() => navigate(`/?viewUser=${u.id}`)} 
-                                                    className="text-gray-400 hover:text-blue-600 transition"
-                                                    title="Inspect Metrics"
-                                                >
-                                                    <Activity size={20} />
-                                                </button>
-                                            )}
-
-                                            {/* Toggle Button: Supports Approval and Deactivation */}
-                                            {canManage(u) && (
-                                                <button 
-                                                    onClick={() => toggleStatus(u)} 
-                                                    className={`transition ${u.status === 'active' ? 'text-gray-400 hover:text-red-500' : 'text-gray-400 hover:text-emerald-500'}`}
-                                                    title={u.status === 'pending' ? "Approve User" : "Toggle Status"}
-                                                >
-                                                   {u.status === 'pending' ? <CheckCircle size={20} /> : <UserCheck size={20} />}
-                                                </button>
-                                            )}
-                                            
-                                            {/* Delete Button: Strictly Admin only and check safety */}
-                                            {currentUserRole === 'admin' && u.id !== currentUserId && (
-                                                <button 
-                                                    onClick={() => handleDelete(u.id)} 
-                                                    className="text-gray-400 hover:text-red-600 transition"
-                                                    title="Permanently Delete"
-                                                >
-                                                    <Trash2 size={20} />
-                                                </button>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800 flex justify-between items-center">
+          <div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">User Registry</h2>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Manage approvals and access levels</p>
+          </div>
+          <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black px-2.5 py-1 rounded-full">{users.length} Total</span>
         </div>
-    );
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="text-[10px] text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700/50">
+                {['User','Role','Status','Actions'].map((h,i) => (
+                  <th key={h} className={`px-6 py-4 font-black ${i===1||i===2||i===3?'text-center':''}`}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.id} className={`border-b border-gray-50 dark:border-gray-700/40 last:border-0 transition-colors ${u.id===currentUserId?'bg-blue-50/40 dark:bg-blue-900/10':'hover:bg-gray-50 dark:hover:bg-gray-700/20'}`}>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-sm font-black shadow-sm ${u.id===currentUserId?'bg-gradient-to-br from-blue-500 to-violet-600 text-white':'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
+                        {u.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-800 dark:text-gray-200 text-sm flex items-center gap-2">
+                          {u.name}
+                          {u.id===currentUserId && <span className="text-[9px] bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded font-black uppercase">You</span>}
+                        </div>
+                        <div className="text-xs text-gray-400 dark:text-gray-500">{u.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-center"><RoleBadge role={u.role} /></td>
+                  <td className="px-6 py-4 text-center"><StatusBadge status={u.status} /></td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center gap-3">
+                      {canAudit(u) && (
+                        <button onClick={() => navigate(`/?viewUser=${u.id}`)} title="Inspect Metrics"
+                          className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition">
+                          <Activity size={16}/>
+                        </button>
+                      )}
+                      {canManage(u) && (
+                        <button onClick={() => toggleStatus(u)} title={u.status==='pending'?'Approve User':'Toggle Status'}
+                          className={`p-2 rounded-xl transition ${u.status==='active'?'text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20':'text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'}`}>
+                          {u.status==='pending' ? <CheckCircle size={16}/> : u.status==='active' ? <UserX size={16}/> : <UserCheck size={16}/>}
+                        </button>
+                      )}
+                      {currentUserRole==='admin' && u.id!==currentUserId && (
+                        <button onClick={() => handleDelete(u.id)} title="Permanently Delete"
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition">
+                          <Trash2 size={16}/>
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default ManageUsers;

@@ -2,7 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom base styles for our finance app */
-body {
-  /* Background color is now handled via index.html classes */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  .dark ::-webkit-scrollbar-thumb { background: #334155; }
+}
+
+@layer utilities {
+  /* Shimmer skeleton animation */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+    background-color: #e2e8f0;
+  }
+  .dark .shimmer {
+    background-color: #1e293b;
+  }
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.35) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: shimmer-sweep 1.4s infinite;
+  }
+  .dark .shimmer::after {
+    background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.07) 50%, transparent 75%);
+    background-size: 200% 100%;
+  }
+
+  /* Fade + slide up animation */
+  .animate-fade-up {
+    animation: fade-up 0.45s ease both;
+  }
+  .animate-fade-up-delay-1 { animation: fade-up 0.45s 0.1s ease both; }
+  .animate-fade-up-delay-2 { animation: fade-up 0.45s 0.2s ease both; }
+  .animate-fade-up-delay-3 { animation: fade-up 0.45s 0.3s ease both; }
+
+  /* Glass card utility */
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .dark .glass {
+    background: rgba(15, 23, 42, 0.7);
+  }
+}
+
+@keyframes shimmer-sweep {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

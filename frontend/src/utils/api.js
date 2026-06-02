@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // Create an instance of Axios
+// Uses relative /api path — Vite dev server proxies this to http://localhost:4000
 const API = axios.create({
-    // Vite uses Vite config proxy or we can hardcode for local dev:
-    baseURL: 'http://localhost:4000', 
+    baseURL: '/api',
 });
 
 // This piece of code automatically runs before every API request we make

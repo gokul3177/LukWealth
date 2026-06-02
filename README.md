@@ -1,314 +1,161 @@
-# 🏦 LukWealth Finance
+# 🏦 LukWealth — Enterprise-Grade Finance Tracker & Audit Platform
 
-A secure, multi-tenant financial management and audit platform with Role-Based Access Control (RBAC), personalized dashboards, and enterprise-grade analytics.
-
----
-
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Role & Permission Matrix](#role--permission-matrix)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-- [User Journey](#user-journey)
-- [Project Structure](#project-structure)
-- [Security Features](#security-features)
-- [Contributing](#contributing)
-- [License](#license)
+LukWealth is a secure, multi-tenant financial management and auditing application. Designed with strict data isolation, hierarchical Role-Based Access Control (RBAC), and gorgeous data visualizations, it offers users a powerful way to manage personal transactions while providing admins and analysts with oversight and inspection capabilities.
 
 ---
 
-## 🎯 Overview
+## 🚀 Key Highlights & System Architecture
 
-LukWealth is an enterprise-grade financial management platform that provides:
-
-- **Multi-tenant architecture** with strict data isolation
-- **Hierarchical role-based access control** (Admin > Analyst > User)
-- **Dual-mode dashboards** (Personal Wallet + Global Monitor)
-- **Comprehensive audit trails** with read-only inspection mode
-- **Smart UI controls** that prevent unauthorized actions
-- **Integrated Dark Mode** for enhanced visual comfort
+- **Secure Gatekeeper Authentication**: New users register and land in a `pending` state, requiring approval from an Administrator or Analyst before access is granted.
+- **Hierarchical RBAC**: Strict system boundaries separate **Admins**, **Analysts**, and **Users**.
+- **Dual-Mode Dashboards**: Transition instantly between your **Personal Wallet** and the **Global Monitor** (Admin/Analyst toggle) to view system-wide aggregated metrics.
+- **Read-Only Audit Mode**: Admins and Analysts can inspect a user's transaction history in a dedicated read-only mode, guaranteeing data integrity.
+- **Modern Responsive Design**: Built with a sleek Tailwind CSS UI featuring full dark mode support, glassmorphic accents, micro-animations, and responsive layouts.
 
 ---
 
-## ✨ Key Features
-
-### 🔐 Gatekeeper Authentication
-
-**Secure Onboarding Process**
-- New users register and enter a `pending` state by default
-- Admin or Analyst approval required before dashboard access
-- Personalized identity enforcement with "Welcome, [Name]" headers and role badges
-
-### 📊 Dual-Mode Dashboards
-
-**Personal Wallet (Default View)**
-- Private financial activity for individual users
-- Ensures data consistency during audits
-- Displays personal balance, income, and expenses
-
-**Global Monitor (Admin/Analyst Toggle)**
-- System-wide aggregated financial insights
-- Total balance, income, and expenses across all users
-- One-click toggle between personal and global views
-
-### 🛡️ Advanced RBAC & User Registry
-
-**Centralized User Management**
-- User Registry hub for account administration
-- Audit Mode: Inspect any user's financial profile without modification rights
-- Hierarchical permissions prevent unauthorized overrides
-
-**Account Management Capabilities**
-- **Admins**: Full control - activate, deactivate, and delete any account
-- **Analysts**: Manage standard Users only (cannot modify Admin accounts)
-- **Users**: Self-service personal finance management
-
-### 💎 Data Integrity & Ownership
-
-**Ownership-Based Controls**
-- Update or delete only records you personally created
-- Smart UI: Delete icons appear only on records you own
-- Prevents unauthorized modifications and 403 errors
-
-**Privacy Protection**
-- Analysts cannot audit other Analysts or Admins
-- Strict hierarchical access enforcement
-- Audit mode is read-only to preserve data integrity
-
-### 🌓 Integrated Dark Mode
-- **System-wide dark theme** toggle for reduced eye strain
-- **Persistent settings** saved via localStorage
-- **Dynamic charts** and UI components optimized for both light and dark environments
-
----
-
-## 👥 Role & Permission Matrix
-
-| Capability | Admin | Analyst | User |
-|:-----------|:-----:|:-------:|:----:|
-| **Personal Dashboard** | ✅ | ✅ | ✅ |
-| **Add/Delete Own Records** | ✅ | ✅ | ✅ |
-| **View Global Statistics** | ✅ | ✅ | ❌ |
-| **Access User Registry** | ✅ | ✅ | ❌ |
-| **Audit Other Users** | ✅ | ✅ (Users only) | ❌ |
-| **Activate/Deactivate Accounts** | ✅ | ✅ (Users only) | ❌ |
-| **Delete User Accounts** | ✅ | ❌ | ❌ |
-
----
-
-## 🛠️ Tech Stack
+## 🛠️ Technology Stack
 
 ### Frontend
-- **Framework**: React.js
-- **Styling**: Tailwind CSS
-- **Charts**: Recharts (Visual Analytics)
+- **Framework**: React.js (v19)
+- **Routing**: React Router DOM (v7)
+- **Styling**: Tailwind CSS & Vanilla CSS
 - **Icons**: Lucide React
+- **Analytics & Graphs**: Recharts
 
 ### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Authentication**: JWT (JSON Web Tokens) with personalized metadata
-- **Database**: SQLite with production-ready schema and hierarchy-aware triggers
+- **Server**: Node.js & Express.js
+- **Database**: SQLite3 with triggers for audit logging and data integrity
+- **Security**: JSON Web Tokens (JWT) & bcryptjs (password hashing)
+- **Orchestration**: Concurrently (to manage multi-prefix dev processes)
 
 ---
 
-## 🚀 Getting Started
+## 📊 Role & Permission Matrix
 
-### Prerequisites
-
-- Node.js (v14 or higher)
-- npm or yarn
-- Git
-
-### Installation
-
-1. **Clone the repository**
-```bash
-   git clone https://github.com/gokul3177/LukWealth.git
-   cd LukWealth
-```
-
-2. **Install dependencies**
-```bash
-   npm install
-```
-
-### Backend Setup
-
-1. **Navigate to backend directory**
-```bash
-   cd backend
-   npm install
-```
-
-2. **Configure environment variables**
-   
-   Create a `.env` file in the backend directory:
-```env
-   JWT_SECRET=your_secret_key_here
-   PORT=5000
-```
-
-3. **Start the backend server**
-```bash
-   node server.js
-```
-
-   The server will run on `http://localhost:5000`
-
-   > [!IMPORTANT]
-   > Currently, the server is configured to clear the database every time it is restarted. Ensure you save any necessary data before restarting the backend.
-
-### Frontend Setup
-
-1. **Navigate to frontend directory**
-```bash
-   cd frontend
-   npm install
-```
-
-2. **Start the development server**
-```bash
-   npm run dev
-```
-
-   The app will run on `http://localhost:5173` (or the port shown in terminal)
-
----
-
-## 🎯 User Journey
-
-### 🟢 Phase 1: Registration (The Gatekeeper)
-
-**New User Registration**
-1. Navigate to the Sign Up page
-2. Enter name, email, and password
-3. Choose desired role (Admin, Analyst, or User)
-4. Account created in `pending` status
-
-**Access Restriction**
-- Cannot log in until approved
-- Professional message displayed: *"Your account is awaiting Admin approval. Please check back later."*
-
----
-
-### 🔵 Phase 2: Account Approval
-
-**Admin/Analyst Workflow**
-1. Log in with an authorized account
-2. Click the **Registry** button
-3. Locate the pending user
-4. Click **Activate** to grant access
-
-**Hierarchical Security**
-- Analysts can activate/deactivate **Users only**
-- Only Admins can manage other Admins
-- Prevents privilege escalation
-
----
-
-### 👤 Phase 3: User Experience (Personal Wallet)
-
-**Dashboard Access**
-1. Log in with activated credentials
-2. Greeted with: *"Welcome, [Name] (USER)"*
-3. View personal "My Wallet" dashboard
-
-**Financial Management**
-- Click **+ Add Record** to log income/expenses
-- View personal balance, income, and expenses
-- Update or delete only your own records
-- Complete data privacy from other users
-
----
-
-### 📈 Phase 4: Overseer Experience (Global Monitor)
-
-**Admin/Analyst Capabilities**
-1. Start at Personal Wallet view
-2. Access **"View Global Stats"** toggle
-3. Switch to System Total view
-
-**Global Dashboard Features**
-- Aggregated income and expenses across all users
-- System-wide financial metrics
-- Smart privacy: Cannot delete others' records
-- Toggle back to personal view anytime
-
----
-
-### 🛡️ Phase 5: Audit Mode (Admin Only)
-
-**Financial Investigation**
-1. Navigate to **Registry**
-2. Click on a user's name
-3. Dashboard switches to **Audit Mode** (blue banner)
-
-**Audit Capabilities**
-- View user's complete financial trail
-- See their specific records, balance, and trends
-- Read-only mode (no add/delete during audit)
-- Preserves audit integrity
+| Capability | Administrator | Financial Analyst | Standard User |
+| :--- | :---: | :---: | :---: |
+| **Manage Personal Dashboard** | ✅ | ✅ | ✅ |
+| **Add / Delete Own Records** | ✅ | ✅ | ✅ |
+| **Toggle Global Monitor** | ✅ | ✅ | ❌ |
+| **Access User Registry** | ✅ | ✅ (Users only) | ❌ |
+| **Audit Other Users (Read-Only)** | ✅ | ✅ (Users only) | ❌ |
+| **Activate / Deactivate Accounts** | ✅ | ✅ (Users only) | ❌ |
+| **Permanently Delete Accounts** | ✅ | ❌ | ❌ |
 
 ---
 
 ## 📁 Project Structure
-<img width="532" height="394" alt="image" src="https://github.com/user-attachments/assets/8a576f12-3a71-4501-8423-9fb52d4698b1" />
+
+```text
+LukWealth/
+├── backend/
+│   ├── db/                 # SQLite database and migrations
+│   ├── routes/             # Express API routes (users, records, summaries)
+│   ├── package.json        # Backend dependencies & scripts
+│   └── server.js           # Express main server entrypoint
+├── frontend/
+│   ├── public/             # Static public assets
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Page views (Dashboard, Login, Register, AddRecord, etc.)
+│   │   ├── utils/          # API hooks and axios client
+│   │   ├── App.jsx         # App router and theme provider
+│   │   └── index.css       # Core design system and utilities
+│   ├── package.json        # Frontend dependencies & configurations
+│   └── vite.config.js      # Vite configurations & API proxies
+├── .env                    # Shared environment variables
+├── package.json            # Root configuration for orchestration
+└── README.md               # You are here!
+```
 
 ---
 
-## 🔒 Security Features
+## ⚡ Quick Start Guide
 
-### Authentication & Authorization
-- JWT-based authentication with secure token management
-- Role-based access control (RBAC) with hierarchical permissions
-- Pending account approval workflow
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- Git
 
-### Data Protection
-- Ownership-based record access
-- Read-only audit mode
-- Privacy guards between user tiers
-- Frontend and backend permission validation
+### 1. Clone and Navigate
+```bash
+git clone https://github.com/gokul3177/LukWealth.git
+cd LukWealth
+```
 
-### Database Security
-- SQLite with prepared statements (SQL injection prevention)
-- Hierarchy-aware triggers
-- Data integrity constraints
+### 2. Configure Environment Variables
+Create a `.env` file in the root directory:
+```env
+JWT_SECRET=your_super_secure_jwt_secret_key
+PORT=4000
+```
+
+### 3. Install All Dependencies
+Install root, backend, and frontend dependencies with a single command:
+```bash
+npm run install:all
+```
+
+### 4. Run the Development Server
+Start the Express backend and Vite frontend concurrently:
+```bash
+npm run dev
+```
+- **Frontend** will start on: `http://localhost:5173`
+- **Backend** will run on: `http://localhost:4000`
+
+---
+
+## 🔐 Core Workflows & User Journeys
+
+### 🟢 Phase 1: Onboarding (Pending Verification)
+1. A new user registers via the **Sign Up** page, selecting their desired role (User, Analyst, or Admin).
+2. The account is created with a `pending` status.
+3. Upon attempting to log in, the user sees a notification: *"Your account is awaiting Admin approval. Please check back later."*
+
+### 🔵 Phase 2: User Verification & Registry Management
+1. An Admin or Analyst logs in.
+2. They navigate to the **Registry** section.
+3. They activate the pending user account. 
+4. *Note: Analysts can only approve or deactivate standard Users. Only Admins can manage other Admin accounts.*
+
+### 👤 Phase 3: Personal Wallet
+1. Once activated, the user logs in and is greeted with their custom home dashboard.
+2. They can view, create, and delete their own financial records (income & expenses).
+3. The interface displays beautiful Recharts visual breakdowns of their personal cash flow.
+
+### 📈 Phase 4: Global Monitor
+1. Admins and Analysts have access to a dashboard toggle to switch from **My Wallet** to **Global Monitor**.
+2. This displays aggregate system-wide stats (total platform cash flow, total users, system-wide metrics).
+3. Critical action safeguards ensure they cannot delete other users' records directly from this view.
+
+### 🛡️ Phase 5: Inspections & Audits
+1. Admins and Analysts can click any activated user's name in the Registry.
+2. This transitions the dashboard into a **Read-Only Audit Mode** (indicated by a distinct blue banner).
+3. The auditor can review the complete history and charts of that specific user, with creation/deletion operations safely disabled.
+
+---
+
+## 🔒 Security Features & Data Protections
+
+- **Data Isolation**: Database queries enforce record ownership constraints at both API and SQLite levels.
+- **Route Guards**: Frontend React Router paths and Backend Express endpoints are protected by state-aware JWT checks.
+- **SQL Injection Prevention**: SQLite uses prepared statements and parameterized queries for all operations.
+- **Approval Gating**: Prevents unauthorized registrations from accessing any endpoints or visual UI dashboards.
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📞 Support
-
-For issues, questions, or suggestions:
-- Open an issue on [GitHub](https://github.com/gokul3177/LukWealth/issues)
-- Contact: [gokulakumaran3281@gmail.com]
+We welcome contributions to LukWealth!
+1. Fork the Project.
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the Branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 
 ---
 
-## 🏁 Summary
+## 📞 Support & Feedback
 
-**LukWealth delivers a complete enterprise financial ecosystem:**
-
-✅ **Users** manage their personal finances securely  
-✅ **Analysts** oversee users and monitor global metrics  
-✅ **Admins** audit anyone and secure the entire platform  
-
-A professional-grade solution for multi-tenant financial management with comprehensive RBAC, audit trails, and data integrity controls.
-
----
-** Working video will be uploaded soon **
-
+For issues or feature requests, feel free to open a ticket on our [GitHub Issues](https://github.com/gokul3177/LukWealth/issues) or reach out via email: [gokulakumaran3281@gmail.com].
