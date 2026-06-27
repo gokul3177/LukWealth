@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import API from '../utils/api';
-import { LogOut, Plus, DollarSign, Trash2, Users, ShieldAlert, ArrowLeft, TrendingUp, TrendingDown } from 'lucide-react';
+import { LogOut, Plus, DollarSign, Trash2, Users, ShieldAlert, ArrowLeft, TrendingUp, TrendingDown, Filter, Download, Activity, Clock } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
+import Pagination from '../components/Pagination';
+import AiInsights from '../components/AiInsights';
 
 function SkeletonDashboard() {
   return (
@@ -39,9 +41,18 @@ const COLORS = ['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899'];
 function Dashboard() {
   const [records, setRecords] = useState([]);
   const [trends, setTrends] = useState([]);
+  const [adminStats, setAdminStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [viewUserName, setViewUserName] = useState(null);
   const [isGlobal, setIsGlobal] = useState(false);
+  
+  // Pagination & Filters
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [filterType, setFilterType] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+
   const navigate = useNavigate();
   const location = useLocation();
   const viewUserId = new URLSearchParams(location.search).get('viewUser');
@@ -59,35 +70,79 @@ function Dashboard() {
       try {
         setLoading(true);
         const params = viewUserId ? {userId:viewUserId} : (isGlobal ? {global:true} : {});
-        const [recsRes, trendsRes] = await Promise.all([API.get('/records',{params}), API.get('/summary/trends',{params})]);
-        setRecords(recsRes.data);
-        setTrends(trendsRes.data);
+        
+        const reqs = [];
+        
+        if (isGlobal) {
+          reqs.push(API.get('/admin/stats').then(res => setAdminStats(res.data)));
+        } else {
+          setAdminStats(null);
+        }
+
+        // Add filter params
+        const recordParams = { ...params, page, limit: 10 };
+        if (filterType) recordParams.type = filterType;
+        if (filterCategory) recordParams.category = filterCategory;
+
+        reqs.push(API.get('/records', { params: recordParams }).then(res => {
+          setRecords(res.data.data);
+          setTotalPages(res.data.totalPages);
+          setTotalRecords(res.data.total);
+        }));
+
+        reqs.push(API.get('/summary/trends',{params}).then(res => setTrends(res.data)));
+
         if (viewUserId) {
-          const usersRes = await API.get('/users');
-          const target = usersRes.data.find(u => u.id == viewUserId);
-          setViewUserName(target ? target.name : 'Unknown User');
-        } else { setViewUserName(null); }
+          reqs.push(API.get('/users').then(res => {
+            const target = res.data.find(u => u.id == viewUserId);
+            setViewUserName(target ? target.name : 'Unknown User');
+          }));
+        } else {
+          setViewUserName(null);
+        }
+
+        await Promise.all(reqs);
+
       } catch(err) { console.error('Dashboard fetch error:', err); }
       finally { setLoading(false); }
     };
     fetch();
-  }, [viewUserId, isGlobal]);
+  }, [viewUserId, isGlobal, page, filterType, filterCategory]);
 
   const handleLogout = () => { localStorage.removeItem('token'); navigate('/login'); };
+  
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this record permanently?')) return;
-    try { await API.delete(`/records/${id}`); setRecords(records.filter(r=>r.id!==id)); }
+    try { await API.delete(\`/records/\${id}\`); setRecords(records.filter(r=>r.id!==id)); }
     catch { alert('Access denied or error occurred.'); }
   };
 
-  const totalIncome = records.filter(r=>r.type==='income').reduce((s,r)=>s+r.amount,0);
-  const totalExpense = records.filter(r=>r.type==='expense').reduce((s,r)=>s+r.amount,0);
+  const handleExportCSV = async () => {
+    try {
+      const params = viewUserId ? {userId:viewUserId} : {};
+      const res = await API.get('/records/export', { params, responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'records.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (err) {
+      alert('Failed to export CSV');
+    }
+  };
+
+  // Only calculate balance for personal view locally if we don't have total sum, 
+  // but for accurate totals we should use summary api. For now using visible records or admin stats.
+  const totalIncome = records.filter(r=>r.type==='income').reduce((s,r)=>s+Number(r.amount),0);
+  const totalExpense = records.filter(r=>r.type==='expense').reduce((s,r)=>s+Number(r.amount),0);
   const balance = totalIncome - totalExpense;
   const categoryData = records.filter(r=>r.type==='expense').reduce((acc,r) => {
-    const ex=acc.find(x=>x.name===r.category); if(ex) ex.value+=r.amount; else acc.push({name:r.category,value:r.amount}); return acc;
+    const ex=acc.find(x=>x.name===r.category); if(ex) ex.value+=Number(r.amount); else acc.push({name:r.category,value:Number(r.amount)}); return acc;
   }, []);
 
-  if (loading) return <SkeletonDashboard />;
+  if (loading && records.length === 0) return <SkeletonDashboard />;
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 px-4 pb-12 pt-6 animate-fade-up">
@@ -100,7 +155,7 @@ function Dashboard() {
               <p className="text-xs text-blue-100">Viewing: <span className="font-black text-white">{viewUserName}</span></p>
             </div>
           </div>
-          <button onClick={()=>navigate('/')} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+          <button onClick={()=>{navigate('/'); setPage(1);}} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
             <ArrowLeft size={14}/> Exit Audit
           </button>
         </div>
@@ -119,7 +174,7 @@ function Dashboard() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {!viewUserId && (role==='admin'||role==='analyst') && (
-            <button onClick={()=>setIsGlobal(!isGlobal)} className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${isGlobal?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'}`}>
+            <button onClick={()=>{setIsGlobal(!isGlobal); setPage(1);}} className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${isGlobal?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'}`}>
               {isGlobal ? 'Personal View' : 'Global Stats'}
             </button>
           )}
@@ -133,20 +188,33 @@ function Dashboard() {
               <Plus size={14}/> Add Record
             </button>
           )}
+          {!isGlobal && (
+            <AiInsights viewUserId={viewUserId} />
+          )}
           <button onClick={handleLogout} className="p-2.5 text-gray-400 hover:text-rose-500 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition" title="Logout">
             <LogOut size={18}/>
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <StatCard label="Total Balance" value={balance} Icon={DollarSign} subLabel="Net portfolio value"
-          gradient={balance>=0 ? 'bg-gradient-to-br from-blue-500 to-violet-600 shadow-blue-500/20' : 'bg-gradient-to-br from-rose-500 to-pink-600 shadow-rose-500/20'} />
-        <StatCard label="Cumulative Income" value={totalIncome} Icon={TrendingUp} subLabel={`${records.filter(r=>r.type==='income').length} income entries`}
-          gradient="bg-gradient-to-br from-emerald-400 to-teal-600 shadow-emerald-500/20" />
-        <StatCard label="Cumulative Expense" value={totalExpense} Icon={TrendingDown} subLabel={`${records.filter(r=>r.type==='expense').length} expense entries`}
-          gradient="bg-gradient-to-br from-rose-500 to-pink-600 shadow-rose-500/20" />
-      </div>
+      {/* Stats Cards */}
+      {isGlobal && adminStats ? (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+           <StatCard label="Active Users" prefix="" value={adminStats.activeUsers} Icon={Users} subLabel="Platform wide" gradient="bg-gradient-to-br from-indigo-500 to-purple-600 shadow-indigo-500/20" />
+           <StatCard label="Pending Approval" prefix="" value={adminStats.pendingApprovals} Icon={Clock} subLabel="Awaiting review" gradient="bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/20" />
+           <StatCard label="Platform Income (Mo)" value={adminStats.currentMonth?.income || 0} Icon={TrendingUp} subLabel="Current month" gradient="bg-gradient-to-br from-emerald-400 to-teal-600 shadow-emerald-500/20" />
+           <StatCard label="Total Records" prefix="" value={adminStats.totalRecords} Icon={Activity} subLabel="All transactions" gradient="bg-gradient-to-br from-blue-500 to-cyan-600 shadow-blue-500/20" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <StatCard label="Visible Balance" value={balance} Icon={DollarSign} subLabel="From current view"
+            gradient={balance>=0 ? 'bg-gradient-to-br from-blue-500 to-violet-600 shadow-blue-500/20' : 'bg-gradient-to-br from-rose-500 to-pink-600 shadow-rose-500/20'} />
+          <StatCard label="Visible Income" value={totalIncome} Icon={TrendingUp} subLabel={`${records.filter(r=>r.type==='income').length} income entries`}
+            gradient="bg-gradient-to-br from-emerald-400 to-teal-600 shadow-emerald-500/20" />
+          <StatCard label="Visible Expense" value={totalExpense} Icon={TrendingDown} subLabel={`${records.filter(r=>r.type==='expense').length} expense entries`}
+            gradient="bg-gradient-to-br from-rose-500 to-pink-600 shadow-rose-500/20" />
+        </div>
+      )}
 
       {(categoryData.length>0||trends.length>0) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -192,9 +260,27 @@ function Dashboard() {
       )}
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/60 dark:bg-gray-800">
-          <h3 className="font-black text-gray-900 dark:text-white text-xs uppercase tracking-widest">Recent Activity</h3>
-          <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black px-2.5 py-1 rounded-full">{records.length} Records</span>
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex flex-wrap gap-4 justify-between items-center bg-gray-50/60 dark:bg-gray-800">
+          <div>
+            <h3 className="font-black text-gray-900 dark:text-white text-xs uppercase tracking-widest">Recent Activity</h3>
+            <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black px-2.5 py-1 rounded-full mt-1 inline-block">{totalRecords} Records</span>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700">
+              <Filter size={14} className="text-gray-400" />
+              <select value={filterType} onChange={(e) => {setFilterType(e.target.value); setPage(1);}} className="bg-transparent text-xs font-semibold text-gray-700 dark:text-gray-200 outline-none">
+                <option value="">All Types</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </div>
+            
+            <button onClick={handleExportCSV} className="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+              <Download size={14} className="text-gray-600 dark:text-gray-300" />
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Export CSV</span>
+            </button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -209,8 +295,7 @@ function Dashboard() {
               {records.length===0 ? (
                 <tr><td colSpan="5" className="px-6 py-16 text-center">
                   <div className="text-4xl mb-3">📭</div>
-                  <p className="text-gray-400 font-semibold text-sm">No financial trails found</p>
-                  <p className="text-gray-300 dark:text-gray-600 text-xs mt-1">Add your first record to get started</p>
+                  <p className="text-gray-400 font-semibold text-sm">No records found</p>
                 </td></tr>
               ) : records.map(record=>(
                 <tr key={record.id} className="border-b border-gray-50 dark:border-gray-700/40 last:border-0 hover:bg-blue-50/30 dark:hover:bg-gray-700/20 transition-colors">
@@ -222,10 +307,10 @@ function Dashboard() {
                   </td>
                   <td className="px-6 py-4 text-gray-400 text-sm max-w-xs truncate italic">"{record.notes||'No notes'}"</td>
                   <td className={`px-6 py-4 text-right font-black text-sm ${record.type==='income'?'text-emerald-500':'text-rose-500'}`}>
-                    {record.type==='income'?'+':'-'}${record.amount.toLocaleString(undefined,{minimumFractionDigits:2})}
+                    {record.type==='income'?'+':'-'}${(Number(record.amount)).toLocaleString(undefined,{minimumFractionDigits:2})}
                   </td>
                   <td className="px-6 py-4 text-center">
-                    {record.userId==currentUserId && !viewUserId && (
+                    {record.userId==currentUserId && !viewUserId && !isGlobal && (
                       <button onClick={()=>handleDelete(record.id)} className="text-gray-300 dark:text-gray-600 hover:text-rose-500 transition p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20">
                         <Trash2 size={16}/>
                       </button>
@@ -236,6 +321,7 @@ function Dashboard() {
             </tbody>
           </table>
         </div>
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
     </div>
   );

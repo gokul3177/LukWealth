@@ -20,6 +20,11 @@ app.use(cors({
 
 app.use(express.json());
 
+const { apiLimiter, authLimiter } = require("./middleware/rateLimiter");
+
+// Apply general rate limiter to all requests
+app.use(apiLimiter);
+
 app.get("/", (req, res)=>{
     res.send("API running");
 });
@@ -33,7 +38,18 @@ app.use("/records", recordRoutes);
 const summaryRoutes = require("./routes/summaryRoutes");
 app.use("/summary", summaryRoutes);
 
+const adminRoutes = require("./routes/adminRoutes");
+app.use("/admin", adminRoutes);
+
+const auditRoutes = require("./routes/auditRoutes");
+app.use("/audit", auditRoutes);
+
+const aiRoutes = require("./routes/aiRoutes");
+app.use("/ai", aiRoutes);
+
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, ()=> {
-    console.log(`Server running on port ${PORT}`);
+db.initDB().then(() => {
+    app.listen(PORT, ()=> {
+        console.log(`Server running on port ${PORT}`);
+    });
 });

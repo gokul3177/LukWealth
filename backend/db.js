@@ -1,49 +1,34 @@
-const sqlite3 = require("sqlite3").verbose()
+const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
-const db = new sqlite3.Database("./database.db", (err)=>{
-    if (err){
-        console.error("DB Error: ", err.message);
-    }
-    else{
-        console.log("SQLite connected");
-    }
-})
-
-db.serialize(()=>{
-    db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            email TEXT UNIQUE,
-            password TEXT, 
-            role TEXT, 
-            status TEXT DEFAULT 'active',
-            deactivatedByRole TEXT
-        )
-        `);
-    db.run(`
-        CREATE TABLE IF NOT EXISTS records(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            userId INTEGER,
-            amount REAL,
-            type TEXT,
-            category TEXT,
-            date TEXT,
-            notes TEXT,
-            FOREIGN KEY (userId) REFERENCES users(id)
-        )
-        `
-    );
-
-    // Migration: Add deactivatedByRole to users table if it doesn't exist
-    db.all("PRAGMA table_info(users)", (err, rows) => {
-        const columnExists = rows.some(row => row.name === 'deactivatedByRole');
-        if (!columnExists) {
-            db.run("ALTER TABLE users ADD COLUMN deactivatedByRole TEXT", (err) => {
-                if (err) console.error("Migration error:", err.message);
-            });
-        }
-    });
+const pool = new Pool({
+  host: process.env.PGHOST || 'localhost',
+  port: process.env.PGPORT || 5432,
+  user: process.env.PGUSER || 'postgres',
+  password: process.env.PGPASSWORD || 'postgres',
+  database: process.env.PGDATABASE || 'lukwealth',
 });
 
-module.exports = db;
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
+});
+
+async function initDB() {
+  try {
+    const schemaPath = path.join(__dirname, 'migrations', '001_initial_schema.sql');
+    const schema = fs.readFileSync(schemaPath, 'utf8');
+    await pool.query(schema);
+    console.log('PostgreSQL schema initialized successfully');
+  } catch (err) {
+    console.error('Error initializing PostgreSQL schema', err);
+  }
+}
+
+module.exports = {
+  query: (text, params) => pool.query(text, params),
+  initDB,
+  pool
+};

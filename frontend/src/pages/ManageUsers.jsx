@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../utils/api';
-import { ArrowLeft, Trash2, User, UserCheck, UserX, Activity, CheckCircle, Clock, Shield, BarChart2 } from 'lucide-react';
+import { ArrowLeft, Trash2, User, UserCheck, UserX, Activity, CheckCircle, Clock, Shield, BarChart2, Search } from 'lucide-react';
+import Pagination from '../components/Pagination';
 
 const RoleBadge = ({ role }) => {
   const map = {
@@ -27,6 +28,10 @@ const StatusBadge = ({ status }) => {
 function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
   const navigate = useNavigate();
 
   const getAuth = () => {
@@ -40,10 +45,16 @@ function ManageUsers() {
   useEffect(() => {
     if (currentUserRole !== 'admin' && currentUserRole !== 'analyst') { navigate('/'); return; }
     fetchUsers();
-  }, []);
+  }, [page, search]);
 
   const fetchUsers = async () => {
-    try { const res = await API.get('/users'); setUsers(res.data); }
+    try { 
+      setLoading(true);
+      const res = await API.get('/users', { params: { page, limit: 10, search } }); 
+      setUsers(res.data.data); 
+      setTotalPages(res.data.totalPages);
+      setTotalUsers(res.data.total);
+    }
     catch { console.error('Failed to fetch users'); }
     finally { setLoading(false); }
   };
@@ -114,7 +125,19 @@ function ManageUsers() {
             <h2 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">User Registry</h2>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Manage approvals and access levels</p>
           </div>
-          <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black px-2.5 py-1 rounded-full">{users.length} Total</span>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+              <input 
+                type="text" 
+                placeholder="Search users..." 
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                className="pl-9 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black px-2.5 py-1 rounded-full">{totalUsers} Total</span>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -172,6 +195,7 @@ function ManageUsers() {
             </tbody>
           </table>
         </div>
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
     </div>
   );

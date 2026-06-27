@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard';
 import AddRecord from './pages/AddRecord';
 import Register from './pages/Register';
 import ManageUsers from './pages/ManageUsers';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function NavBar({ theme, toggleTheme }) {
@@ -85,6 +87,8 @@ function App() {
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/add-record" element={<ProtectedRoute><AddRecord /></ProtectedRoute>} />
             <Route path="/manage-users" element={<ProtectedRoute><ManageUsers /></ProtectedRoute>} />
           </Routes>
