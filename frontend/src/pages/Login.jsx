@@ -104,7 +104,7 @@ function Login() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-
+            <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Password

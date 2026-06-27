@@ -113,7 +113,7 @@ function Dashboard() {
   
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this record permanently?')) return;
-    try { await API.delete(\`/records/\${id}\`); setRecords(records.filter(r=>r.id!==id)); }
+    try { await API.delete(`/records/${id}`); setRecords(records.filter(r=>r.id!==id)); }
     catch { alert('Access denied or error occurred.'); }
   };
 
