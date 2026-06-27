@@ -50,12 +50,12 @@ async function sendSuspensionEmail(user) {
 
 async function sendPasswordResetEmail(user, token) {
     try {
-        const resetLink = \`http://localhost:5173/reset-password?token=\${token}\`;
+        const resetLink = `http://localhost:5173/reset-password?token=${token}`;
         await transporter.sendMail({
             from: '"LukWealth Admin" <admin@lukwealth.com>',
             to: user.email,
             subject: "Password Reset Request",
-            html: \`<h3>Hello \${user.name},</h3><p>Click <a href="\${resetLink}">here</a> to reset your password. This link expires in 15 minutes.</p>\`
+            html: `<h3>Hello ${user.name},</h3><p>Click <a href="${resetLink}">here</a> to reset your password. This link expires in 15 minutes.</p>`
         });
     } catch (err) {
         console.error("Email error:", err);

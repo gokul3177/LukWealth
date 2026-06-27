@@ -68,25 +68,25 @@ exports.getRecords = async (req, res) => {
 
         if (!isGlobalRequested) {
             params.push(targetUserId);
-            query += \` AND user_id = \$\${params.length}\`;
+            query += ` AND user_id = $${params.length}`;
         }
 
         // Filters
         if (type) {
             params.push(type);
-            query += \` AND type = \$\${params.length}\`;
+            query += ` AND type = $${params.length}`;
         }
         if (category) {
             params.push(category);
-            query += \` AND category = \$\${params.length}\`;
+            query += ` AND category = $${params.length}`;
         }
         if (startDate) {
             params.push(startDate);
-            query += \` AND date >= \$\${params.length}\`;
+            query += ` AND date >= $${params.length}`;
         }
         if (endDate) {
             params.push(endDate);
-            query += \` AND date <= \$\${params.length}\`;
+            query += ` AND date <= $${params.length}`;
         }
 
         // Count query for pagination
@@ -94,7 +94,7 @@ exports.getRecords = async (req, res) => {
         const countResult = await db.query(countQuery, params);
         const total = parseInt(countResult.rows[0].count);
 
-        query += \` ORDER BY date DESC LIMIT \$\${params.length + 1} OFFSET \$\${params.length + 2}\`;
+        query += ` ORDER BY date DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
         params.push(limit, offset);
 
         const { rows } = await db.query(query, params);
@@ -122,11 +122,11 @@ exports.updateRecord = async (req, res) => {
     if (type !== 'income' && type !== 'expense') return res.status(400).json({ message: "Type must be either income or expense" });
 
     try {
-        const query = \`
+        const query = `
             UPDATE records
             SET amount = $1, type=$2, category=$3, date=$4, notes=$5
             WHERE id=$6 AND user_id=$7
-        \`;
+        `;
         const params = [amount, type, category, date, notes, id, req.user.id];
 
         const { rowCount } = await db.query(query, params);

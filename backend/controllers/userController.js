@@ -215,7 +215,7 @@ exports.updateUserStatus = async (req, res) => {
             await emailService.sendSuspensionEmail(targetUser);
         }
 
-        res.json({ message: \`User status updated to \${status}\` });
+        res.json({ message: `User status updated to ${status}` });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

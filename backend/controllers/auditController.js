@@ -16,14 +16,14 @@ exports.getAuditLogs = async (req, res) => {
 
         if (action) {
             params.push(action);
-            query += \` AND a.action = \$\${params.length}\`;
+            query += ` AND a.action = $${params.length}`;
         }
 
         const countQuery = query.replace(/SELECT .* FROM/, 'SELECT COUNT(*) FROM');
         const countResult = await db.query(countQuery, params);
         const total = parseInt(countResult.rows[0].count);
 
-        query += \` ORDER BY a.created_at DESC LIMIT \$\${params.length + 1} OFFSET \$\${params.length + 2}\`;
+        query += ` ORDER BY a.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
         params.push(limit, offset);
 
         const { rows } = await db.query(query, params);

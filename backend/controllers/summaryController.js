@@ -20,7 +20,7 @@ exports.getSummary = async (req, res) => {
 
         if (!isGlobalRequested) {
             params.push(targetUserId);
-            query += \` WHERE user_id = \$\${params.length}\`;
+            query += ` WHERE user_id = $${params.length}`;
         }
 
         const { rows } = await db.query(query, params);
@@ -50,7 +50,7 @@ exports.getCategorySummary = async (req, res) => {
 
         if (!isGlobalRequested) {
             params.push(targetUserId);
-            query += \` AND user_id = \$\${params.length}\`;
+            query += ` AND user_id = $${params.length}`;
         }
 
         query += ' GROUP BY category';
@@ -88,7 +88,7 @@ exports.getTrends = async (req, res) => {
         let finalQuery = baseQuery;
         if (!isGlobalRequested) {
             params.push(targetUserId);
-            finalQuery += \` WHERE user_id = \$\${params.length}\`;
+            finalQuery += ` WHERE user_id = $${params.length}`;
         }
         finalQuery += ` GROUP BY TO_CHAR(date, 'YYYY-MM') ORDER BY month ASC`;
 
