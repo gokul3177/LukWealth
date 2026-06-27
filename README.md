@@ -1,161 +1,140 @@
-# 🏦 LukWealth — Enterprise-Grade Finance Tracker & Audit Platform
-
-LukWealth is a secure, multi-tenant financial management and auditing application. Designed with strict data isolation, hierarchical Role-Based Access Control (RBAC), and gorgeous data visualizations, it offers users a powerful way to manage personal transactions while providing admins and analysts with oversight and inspection capabilities.
-
----
-
-## 🚀 Key Highlights & System Architecture
-
-- **Secure Gatekeeper Authentication**: New users register and land in a `pending` state, requiring approval from an Administrator or Analyst before access is granted.
-- **Hierarchical RBAC**: Strict system boundaries separate **Admins**, **Analysts**, and **Users**.
-- **Dual-Mode Dashboards**: Transition instantly between your **Personal Wallet** and the **Global Monitor** (Admin/Analyst toggle) to view system-wide aggregated metrics.
-- **Read-Only Audit Mode**: Admins and Analysts can inspect a user's transaction history in a dedicated read-only mode, guaranteeing data integrity.
-- **Modern Responsive Design**: Built with a sleek Tailwind CSS UI featuring full dark mode support, glassmorphic accents, micro-animations, and responsive layouts.
+<div align="center">
+  <h1 align="center">LukWealth</h1>
+  <p align="center">
+    <strong>Enterprise-grade Financial Tracking with Role-Based Access Control and AI Insights.</strong>
+  </p>
+</div>
 
 ---
 
-## 🛠️ Technology Stack
+## 🚀 Project Overview
 
-### Frontend
-- **Framework**: React.js (v19)
-- **Routing**: React Router DOM (v7)
-- **Styling**: Tailwind CSS & Vanilla CSS
-- **Icons**: Lucide React
-- **Analytics & Graphs**: Recharts
+LukWealth is a production-ready fintech application that provides secure income and expense tracking, immutable audit logging, platform-wide analytics, and AI-driven financial insights. Built to handle concurrency and strictly enforce role hierarchies, it demonstrates enterprise software patterns including Role-Based Access Control (RBAC), stateless authentication, and advanced PostgreSQL optimizations.
 
-### Backend
-- **Server**: Node.js & Express.js
-- **Database**: SQLite3 with triggers for audit logging and data integrity
-- **Security**: JSON Web Tokens (JWT) & bcryptjs (password hashing)
-- **Orchestration**: Concurrently (to manage multi-prefix dev processes)
+## ✨ Features
 
----
+- **🔐 Strict Role-Based Access Control (RBAC):** `Admin`, `Analyst`, and `User` roles with granular permission levels and a Privacy Guard.
+- **🛡️ Immutable Audit Logging:** All critical state changes (approvals, deletions, logins) are asynchronously logged to a tamper-proof audit table.
+- **📊 AI Financial Advisor:** Integration with OpenAI for dynamic, personalized 30-day spending insights and SQL-driven anomaly/fraud detection.
+- **📦 Containerized Infrastructure:** Fully Dockerized backend, frontend, and PostgreSQL database for environment parity.
+- **🔒 Enterprise Security:** Rate Limiting (DDoS protection), cryptographic time-sensitive password resets, and parameterized SQL queries.
+- **📈 Advanced Data Grid:** Server-side pagination (`LIMIT`/`OFFSET`), dynamic search filtering, and streaming CSV exports.
 
-## 📊 Role & Permission Matrix
+## 🏗️ Architecture
 
-| Capability | Administrator | Financial Analyst | Standard User |
-| :--- | :---: | :---: | :---: |
-| **Manage Personal Dashboard** | ✅ | ✅ | ✅ |
-| **Add / Delete Own Records** | ✅ | ✅ | ✅ |
-| **Toggle Global Monitor** | ✅ | ✅ | ❌ |
-| **Access User Registry** | ✅ | ✅ (Users only) | ❌ |
-| **Audit Other Users (Read-Only)** | ✅ | ✅ (Users only) | ❌ |
-| **Activate / Deactivate Accounts** | ✅ | ✅ (Users only) | ❌ |
-| **Permanently Delete Accounts** | ✅ | ❌ | ❌ |
+```mermaid
+graph TD
+    Client[React SPA] -->|HTTPS / REST| RateLimiter[Global & Auth Limiters]
+    RateLimiter --> Express[Express.js Backend]
+    
+    subgraph Express Backend
+        AuthMid[Auth & RBAC Middleware]
+        Controllers[Controllers: User, Record, Admin, AI]
+        Logger[Fire-and-forget Audit Logger]
+    end
+    
+    Express --> AuthMid
+    AuthMid --> Controllers
+    Controllers --> Logger
+    
+    subgraph PostgreSQL Database
+        Users[(Users Table)]
+        Records[(Records Table)]
+        Logs[(Audit Logs)]
+    end
+    
+    Controllers -->|pg.Pool| Users
+    Controllers -->|pg.Pool| Records
+    Controllers -->|pg.Pool| Logs
+```
 
----
+## 🛠️ Tech Stack
 
-## 📁 Project Structure
+- **Frontend**: React 18, Vite, Tailwind CSS, Recharts, Lucide React
+- **Backend**: Node.js, Express.js, `pg` (node-postgres), JWT, bcryptjs, Nodemailer
+- **Database**: PostgreSQL 16
+- **DevOps**: Docker, Docker Compose
+- **AI**: OpenAI `gpt-3.5-turbo`
 
-```text
+## 📁 Folder Structure
+
+\`\`\`
 LukWealth/
 ├── backend/
-│   ├── db/                 # SQLite database and migrations
-│   ├── routes/             # Express API routes (users, records, summaries)
-│   ├── package.json        # Backend dependencies & scripts
-│   └── server.js           # Express main server entrypoint
+│   ├── controllers/      # Business logic (users, records, admin, audit, ai)
+│   ├── middleware/       # JWT auth, RBAC enforcement, rate limiting
+│   ├── migrations/       # SQL DDL schemas
+│   ├── routes/           # Express API route definitions
+│   ├── utils/            # Audit logger, Email service
+│   ├── db.js             # PostgreSQL Connection Pool
+│   └── server.js         # Entry point & global middleware
 ├── frontend/
-│   ├── public/             # Static public assets
 │   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── pages/          # Page views (Dashboard, Login, Register, AddRecord, etc.)
-│   │   ├── utils/          # API hooks and axios client
-│   │   ├── App.jsx         # App router and theme provider
-│   │   └── index.css       # Core design system and utilities
-│   ├── package.json        # Frontend dependencies & configurations
-│   └── vite.config.js      # Vite configurations & API proxies
-├── .env                    # Shared environment variables
-├── package.json            # Root configuration for orchestration
-└── README.md               # You are here!
-```
+│   │   ├── components/   # Reusable UI (Pagination, AiInsights)
+│   │   ├── pages/        # Dashboard, ManageUsers, Auth flows
+│   │   └── utils/        # Axios interceptors
+│   └── tailwind.config.js
+├── docker-compose.yml
+└── README.md
+\`\`\`
 
----
+## ⚙️ Installation & Running Locally
 
-## ⚡ Quick Start Guide
+### Option 1: Running with Docker (Recommended)
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or higher recommended)
-- Git
+1. Clone the repository.
+2. Copy `.env.example` to `.env` in the root directory and fill in your values (PostgreSQL credentials, JWT Secret, Mailtrap, OpenAI Key).
+3. Build and run the stack:
+   \`\`\`bash
+   docker-compose up --build
+   \`\`\`
+4. Access the frontend at `http://localhost:5173` and the backend at `http://localhost:4000`.
 
-### 1. Clone and Navigate
-```bash
-git clone https://github.com/gokul3177/LukWealth.git
-cd LukWealth
-```
+### Option 2: Running Locally (Without Docker)
 
-### 2. Configure Environment Variables
-Create a `.env` file in the root directory:
-```env
-JWT_SECRET=your_super_secure_jwt_secret_key
-PORT=4000
-```
+1. Ensure PostgreSQL is installed and running locally.
+2. Initialize the database using the schema in `backend/migrations/001_initial_schema.sql`.
+3. Start the backend:
+   \`\`\`bash
+   cd backend
+   npm install
+   npm run dev
+   \`\`\`
+4. Start the frontend:
+   \`\`\`bash
+   cd frontend
+   npm install
+   npm run dev
+   \`\`\`
 
-### 3. Install All Dependencies
-Install root, backend, and frontend dependencies with a single command:
-```bash
-npm run install:all
-```
+## 🔑 Environment Variables
 
-### 4. Run the Development Server
-Start the Express backend and Vite frontend concurrently:
-```bash
-npm run dev
-```
-- **Frontend** will start on: `http://localhost:5173`
-- **Backend** will run on: `http://localhost:4000`
+| Variable | Description |
+|---|---|
+| \`PORT\` | Backend API Port (Default: 4000) |
+| \`DB_USER\` | PostgreSQL Username |
+| \`DB_PASSWORD\` | PostgreSQL Password |
+| \`DB_HOST\` | Database Host (e.g., \`postgres\` or \`localhost\`) |
+| \`DB_NAME\` | Database Name |
+| \`DB_PORT\` | Database Port (Default: 5432) |
+| \`JWT_SECRET\` | Secret for signing JSON Web Tokens |
+| \`SMTP_HOST\` | Mail server host (e.g., sandbox.smtp.mailtrap.io) |
+| \`SMTP_PORT\` | Mail server port (e.g., 2525) |
+| \`SMTP_USER\` | Mail server username |
+| \`SMTP_PASS\` | Mail server password |
+| \`OPENAI_API_KEY\` | OpenAI API Key (Optional - falls back to mock data if omitted) |
 
----
+## 🌐 API Overview
 
-## 🔐 Core Workflows & User Journeys
+- **Auth**: \`POST /users/register\`, \`POST /users/login\`, \`POST /users/forgot-password\`
+- **Records**: \`GET /records\`, \`POST /records\`, \`DELETE /records/:id\`
+- **Admin**: \`GET /users\`, \`POST /users/approve/:id\`, \`GET /admin/stats\`
+- **AI**: \`GET /ai/insights\`, \`GET /ai/fraud-check\`
 
-### 🟢 Phase 1: Onboarding (Pending Verification)
-1. A new user registers via the **Sign Up** page, selecting their desired role (User, Analyst, or Admin).
-2. The account is created with a `pending` status.
-3. Upon attempting to log in, the user sees a notification: *"Your account is awaiting Admin approval. Please check back later."*
+*(See `API_DOCS.md` for full documentation).*
 
-### 🔵 Phase 2: User Verification & Registry Management
-1. An Admin or Analyst logs in.
-2. They navigate to the **Registry** section.
-3. They activate the pending user account. 
-4. *Note: Analysts can only approve or deactivate standard Users. Only Admins can manage other Admin accounts.*
-
-### 👤 Phase 3: Personal Wallet
-1. Once activated, the user logs in and is greeted with their custom home dashboard.
-2. They can view, create, and delete their own financial records (income & expenses).
-3. The interface displays beautiful Recharts visual breakdowns of their personal cash flow.
-
-### 📈 Phase 4: Global Monitor
-1. Admins and Analysts have access to a dashboard toggle to switch from **My Wallet** to **Global Monitor**.
-2. This displays aggregate system-wide stats (total platform cash flow, total users, system-wide metrics).
-3. Critical action safeguards ensure they cannot delete other users' records directly from this view.
-
-### 🛡️ Phase 5: Inspections & Audits
-1. Admins and Analysts can click any activated user's name in the Registry.
-2. This transitions the dashboard into a **Read-Only Audit Mode** (indicated by a distinct blue banner).
-3. The auditor can review the complete history and charts of that specific user, with creation/deletion operations safely disabled.
-
----
-
-## 🔒 Security Features & Data Protections
-
-- **Data Isolation**: Database queries enforce record ownership constraints at both API and SQLite levels.
-- **Route Guards**: Frontend React Router paths and Backend Express endpoints are protected by state-aware JWT checks.
-- **SQL Injection Prevention**: SQLite uses prepared statements and parameterized queries for all operations.
-- **Approval Gating**: Prevents unauthorized registrations from accessing any endpoints or visual UI dashboards.
-
----
-
-## 🤝 Contributing
-
-We welcome contributions to LukWealth!
-1. Fork the Project.
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the Branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
-
----
-
-## 📞 Support & Feedback
-
-For issues or feature requests, feel free to open a ticket on our [GitHub Issues](https://github.com/gokul3177/LukWealth/issues) or reach out via email: [gokulakumaran3281@gmail.com].
+## 🚀 Future Improvements
+- Move JWT storage from `localStorage` to `HttpOnly` cookies to mitigate XSS vulnerabilities.
+- Implement a Redis caching layer for the Admin Stats dashboard to prevent heavy COUNT queries during high traffic.
+- Introduce Zod or express-validator for strict API request body schema validation.
+- Add an automated test suite (Jest/Supertest).
